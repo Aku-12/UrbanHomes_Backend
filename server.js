@@ -8,6 +8,7 @@ const connectDB = require('./config/database');
 // Route imports
 const authRoutes = require('./routes/authRoutes');
 const roomRoutes = require('./routes/roomRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
 
 // Connect to database
 connectDB();
@@ -34,6 +35,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
