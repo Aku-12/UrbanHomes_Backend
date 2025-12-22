@@ -9,6 +9,8 @@ const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const roomRoutes = require('./routes/roomRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const bookingsRoutes = require('./routes/bookingsRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Connect to database
 connectDB();
@@ -36,6 +38,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/bookings', bookingsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
