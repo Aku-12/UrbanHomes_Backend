@@ -3,7 +3,15 @@ const Room = require('../models/roomModel');
 
 exports.createBooking = async (req, res) => {
   try {
-    const { roomId, startDate, endDate } = req.body;
+    const {
+      roomId,
+      startDate,
+      endDate,
+      duration,
+      renterInfo,
+      paymentMethod,
+      promoCode
+    } = req.body;
 
     // Validate room
     const room = await Room.findById(roomId);
@@ -33,7 +41,6 @@ exports.createBooking = async (req, res) => {
     }
 
     // Check overlapping bookings
-    // Two date ranges overlap if: (A.start < B.end) AND (A.end > B.start)
     const existingBooking = await Booking.findOne({
       room: roomId,
       status: { $in: ['pending', 'confirmed'] },
@@ -47,15 +54,31 @@ exports.createBooking = async (req, res) => {
       });
     }
 
-    // Calculate total price (monthly based)
-    const totalPrice = room.price;
+    // Calculate pricing
+    const monthlyRent = room.price;
+    const securityDeposit = Math.round(room.price * 0.2);
+    const serviceFee = 100;
+
+    // Calculate discount if promo code is valid
+    let discount = 0;
+    // TODO: Implement promo code validation logic here
+
+    const totalPrice = monthlyRent + securityDeposit + serviceFee - discount;
 
     const booking = await Booking.create({
       room: roomId,
       user: req.user.id,
+      renterInfo,
       startDate: start,
       endDate: end,
+      duration: duration || 1,
+      monthlyRent,
+      securityDeposit,
+      serviceFee,
       totalPrice,
+      paymentMethod: paymentMethod || 'esewa',
+      promoCode,
+      discount,
       status: 'pending'
     });
 
@@ -77,7 +100,7 @@ exports.createBooking = async (req, res) => {
 exports.getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
-      .populate('room', 'title price location status')
+      .populate('room', 'title price location status images')
       .populate('user', 'name email');
 
     res.status(200).json({
@@ -93,7 +116,8 @@ exports.getAllBookings = async (req, res) => {
 exports.getMyBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user.id })
-      .populate('room', 'title price location images status');
+      .populate('room', 'title price location images status')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,

@@ -14,6 +14,31 @@ const bookingSchema = new mongoose.Schema(
       required: [true, 'User is required for booking']
     },
 
+    // Renter Information
+    renterInfo: {
+      firstName: {
+        type: String,
+        required: [true, 'First name is required']
+      },
+      lastName: {
+        type: String,
+        required: [true, 'Last name is required']
+      },
+      email: {
+        type: String,
+        required: [true, 'Email is required']
+      },
+      phone: {
+        type: String,
+        required: [true, 'Phone number is required']
+      },
+      numberOfOccupants: {
+        type: Number,
+        default: 1,
+        min: 1
+      }
+    },
+
     bookingDate: {
       type: Date,
       default: Date.now
@@ -29,9 +54,39 @@ const bookingSchema = new mongoose.Schema(
       required: [true, 'End date is required']
     },
 
+    // Duration in months
+    duration: {
+      type: Number,
+      required: [true, 'Duration is required'],
+      min: 1
+    },
+
+    // Price breakdown
+    monthlyRent: {
+      type: Number,
+      required: [true, 'Monthly rent is required']
+    },
+
+    securityDeposit: {
+      type: Number,
+      required: [true, 'Security deposit is required']
+    },
+
+    serviceFee: {
+      type: Number,
+      default: 100
+    },
+
     totalPrice: {
       type: Number,
       required: [true, 'Total price is required']
+    },
+
+    // Payment
+    paymentMethod: {
+      type: String,
+      enum: ['esewa', 'khalti', 'cash'],
+      default: 'esewa'
     },
 
     status: {
@@ -44,6 +99,17 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       enum: ['unpaid', 'paid'],
       default: 'unpaid'
+    },
+
+    // Promo code
+    promoCode: {
+      type: String,
+      default: null
+    },
+
+    discount: {
+      type: Number,
+      default: 0
     }
   },
   {
