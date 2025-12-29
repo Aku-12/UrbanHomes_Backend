@@ -85,7 +85,7 @@ const bookingSchema = new mongoose.Schema(
     // Payment
     paymentMethod: {
       type: String,
-      enum: ['esewa', 'khalti', 'cash'],
+      enum: ['esewa', 'cash'],
       default: 'esewa'
     },
 

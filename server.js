@@ -11,6 +11,7 @@ const roomRoutes = require('./routes/roomRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const bookingsRoutes = require('./routes/bookingsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 // Connect to database
 connectDB();
@@ -40,6 +41,7 @@ app.use('/api/rooms', roomRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
