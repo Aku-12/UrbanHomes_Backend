@@ -36,6 +36,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  address: {
+    street: {
+      type: String,
+      trim: true,
+      default: null
+    },
+    city: {
+      type: String,
+      trim: true,
+      default: null
+    }
+  },
   role: {
     type: String,
     enum: ['user', 'landlord', 'admin'],
