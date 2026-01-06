@@ -101,6 +101,26 @@ const bookingSchema = new mongoose.Schema(
       default: 'unpaid'
     },
 
+    // eSewa transaction details
+    esewaTransaction: {
+      transactionUuid: {
+        type: String,
+        default: null
+      },
+      refId: {
+        type: String,
+        default: null
+      },
+      amount: {
+        type: Number,
+        default: null
+      },
+      paidAt: {
+        type: Date,
+        default: null
+      }
+    },
+
     // Promo code
     promoCode: {
       type: String,
