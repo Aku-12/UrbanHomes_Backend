@@ -14,6 +14,7 @@ const bookingsRoutes = require('./routes/bookingsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Connect to database
 connectDB();
@@ -50,6 +51,7 @@ app.use('/api/bookings', bookingsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

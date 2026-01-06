@@ -49,8 +49,12 @@ exports.getAllRooms = async (req, res) => {
       });
     }
 
-    // Default to available rooms only
-    filter.status = status || 'available';
+    // Show all active rooms (available, rented, pending) - exclude only inactive
+    if (status) {
+      filter.status = status;
+    } else {
+      filter.status = { $in: ['available', 'rented', 'pending'] };
+    }
 
     // Build sort object
     let sort = { createdAt: -1 };
@@ -92,7 +96,8 @@ exports.getPopularRooms = async (req, res) => {
   try {
     const { city, limit = 6 } = req.query;
 
-    const filter = { status: 'available' };
+    // Show all active rooms (available, rented, pending)
+    const filter = { status: { $in: ['available', 'rented', 'pending'] } };
 
     if (city) {
       filter['location.city'] = { $regex: city, $options: 'i' };
@@ -124,7 +129,7 @@ exports.getFeaturedRooms = async (req, res) => {
 
     const rooms = await Room.find({
       isFeatured: true,
-      status: 'available'
+      status: { $in: ['available', 'rented', 'pending'] }
     })
       .populate('owner', 'firstName lastName avatar')
       .sort({ createdAt: -1 })
@@ -317,7 +322,7 @@ exports.searchRooms = async (req, res) => {
     const searchRegex = { $regex: q, $options: 'i' };
 
     const filter = {
-      status: 'available',
+      status: { $in: ['available', 'rented', 'pending'] },
       $or: [
         { title: searchRegex },
         { description: searchRegex },
@@ -356,7 +361,7 @@ exports.searchRooms = async (req, res) => {
 // Get available cities (for filters)
 exports.getCities = async (req, res) => {
   try {
-    const cities = await Room.distinct('location.city', { status: 'available' });
+    const cities = await Room.distinct('location.city', { status: { $in: ['available', 'rented', 'pending'] } });
 
     res.status(200).json({
       success: true,

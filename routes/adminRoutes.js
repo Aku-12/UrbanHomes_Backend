@@ -14,6 +14,7 @@ const {
   getAllBookingsAdmin,
   approveBooking,
   rejectBooking,
+  deleteBookingAdmin,
   getBookingById,
   globalSearch
 } = require('../controllers/adminController');
@@ -47,5 +48,6 @@ router.get('/bookings', getAllBookingsAdmin);
 router.get('/bookings/:id', getBookingById);
 router.patch('/bookings/:id/approve', approveBooking);
 router.patch('/bookings/:id/reject', rejectBooking);
+router.delete('/bookings/:id', deleteBookingAdmin);
 
 module.exports = router;
