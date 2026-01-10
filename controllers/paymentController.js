@@ -2,6 +2,7 @@ const axios = require('axios');
 const Booking = require('../models/bookingsModel');
 const { createPaymentPayload, generateSignature } = require('../utils/esewa');
 const crypto = require('crypto');
+const { createNotification } = require('./notificationController');
 
 /**
  * Initiate eSewa payment
@@ -227,6 +228,17 @@ exports.verifyEsewaPayment = async (req, res) => {
       booking.room.status = 'rented';
       await booking.room.save();
     }
+
+    // Create notification for successful payment
+    await createNotification(booking.user, {
+      type: 'payment',
+      title: 'Payment Successful',
+      message: `Your payment of Rs ${booking.totalPrice} has been processed successfully.`,
+      icon: 'check-circle',
+      relatedId: booking._id,
+      relatedModel: 'Booking',
+      link: `/bookings/${booking._id}`
+    });
 
     res.status(200).json({
       success: true,

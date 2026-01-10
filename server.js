@@ -1,10 +1,12 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const path = require('path');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const connectDB = require('./config/database');
+const { initSocket } = require('./config/socket');
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');
@@ -15,11 +17,17 @@ const adminRoutes = require('./routes/adminRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 // Connect to database
 connectDB();
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize Socket.io
+const io = initSocket(server);
 
 // Security middleware
 app.use(helmet({
@@ -52,6 +60,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -76,6 +86,6 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

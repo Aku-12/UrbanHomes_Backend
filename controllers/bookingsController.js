@@ -1,5 +1,6 @@
 const Booking = require('../models/bookingsModel');
 const Room = require('../models/roomModel');
+const { createNotification } = require('./notificationController');
 
 exports.createBooking = async (req, res) => {
   try {
@@ -86,6 +87,17 @@ exports.createBooking = async (req, res) => {
     room.status = 'pending';
     await room.save();
 
+    // Create notification for user
+    await createNotification(req.user.id, {
+      type: 'booking',
+      title: 'Booking Created',
+      message: `Your booking for ${room.title} has been created and is pending confirmation.`,
+      icon: 'calendar',
+      relatedId: booking._id,
+      relatedModel: 'Booking',
+      link: `/bookings/${booking._id}`
+    });
+
     res.status(201).json({
       success: true,
       booking
@@ -146,10 +158,38 @@ exports.updateBookingStatus = async (req, res) => {
     // Sync room status
     if (status === 'confirmed') {
       booking.room.status = 'rented';
+
+      // Send notification to user
+      const startDate = new Date(booking.startDate).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      await createNotification(booking.user, {
+        type: 'booking',
+        title: 'Booking Confirmed',
+        message: `Your booking for ${booking.room.title} has been confirmed. Move-in date: ${startDate}.`,
+        icon: 'calendar',
+        relatedId: booking._id,
+        relatedModel: 'Booking',
+        link: `/bookings/${booking._id}`
+      });
     }
 
     if (status === 'cancelled') {
       booking.room.status = 'available';
+
+      // Send notification to user
+      await createNotification(booking.user, {
+        type: 'booking',
+        title: 'Booking Cancelled',
+        message: `Your booking for ${booking.room.title} has been cancelled.`,
+        icon: 'calendar',
+        relatedId: booking._id,
+        relatedModel: 'Booking',
+        link: `/bookings/${booking._id}`
+      });
     }
 
     await booking.room.save();
