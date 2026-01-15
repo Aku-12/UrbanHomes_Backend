@@ -60,6 +60,7 @@ exports.getContacts = async (req, res) => {
     }
 
     const contacts = await Contact.find(filter)
+      .populate('replies.repliedBy', 'firstName lastName')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -88,7 +89,8 @@ exports.getContacts = async (req, res) => {
 // Get single contact (Admin only)
 exports.getContact = async (req, res) => {
   try {
-    const contact = await Contact.findById(req.params.id);
+    const contact = await Contact.findById(req.params.id)
+      .populate('replies.repliedBy', 'firstName lastName');
 
     if (!contact) {
       return res.status(404).json({
@@ -162,6 +164,93 @@ exports.deleteContact = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Contact deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// Reply to contact (Admin only)
+exports.replyToContact = async (req, res) => {
+  try {
+    const { message } = req.body;
+    const contactId = req.params.id;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reply message is required'
+      });
+    }
+
+    const contact = await Contact.findById(contactId);
+
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact not found'
+      });
+    }
+
+    // Add reply to the contact
+    contact.replies.push({
+      message: message.trim(),
+      repliedBy: req.user._id,
+      repliedAt: new Date()
+    });
+    contact.status = 'replied';
+    await contact.save();
+
+    // Send email notification to the user
+    try {
+      await sendEmail({
+        email: contact.email,
+        subject: `Re: ${contact.subject}`,
+        message: `Dear ${contact.name},\n\nThank you for contacting us. Here is our response to your inquiry:\n\n${message}\n\nOriginal Message:\n"${contact.message}"\n\nBest regards,\nUrbanHomes Team`
+      });
+    } catch (emailError) {
+      console.log('Email sending failed:', emailError);
+      // Don't fail the request if email fails
+    }
+
+    // Populate the repliedBy field before sending response
+    await contact.populate('replies.repliedBy', 'firstName lastName');
+
+    res.status(200).json({
+      success: true,
+      message: 'Reply sent successfully',
+      data: contact
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// Get contacts by email (for users to view their messages)
+exports.getContactsByEmail = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const contacts = await Contact.find({ email: email.toLowerCase() })
+      .populate('replies.repliedBy', 'firstName lastName')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: contacts
     });
   } catch (error) {
     res.status(500).json({
