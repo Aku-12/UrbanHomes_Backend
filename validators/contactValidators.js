@@ -1,10 +1,11 @@
 const { z } = require('zod');
 
-// Phone regex: supports various formats
+// Phone regex: supports various formats including international
 const phoneSchema = z
   .string()
-  .regex(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, 'Please provide a valid phone number')
-  .optional();
+  .regex(/^[\+]?[0-9\s\-\(\)\.]{7,20}$/, 'Please provide a valid phone number')
+  .optional()
+  .or(z.literal(''));
 
 // Contact form schema
 const contactSchema = z.object({
@@ -25,7 +26,7 @@ const contactSchema = z.object({
     .trim(),
   message: z
     .string({ required_error: 'Message is required' })
-    .min(10, 'Message must be at least 10 characters')
+    .min(2, 'Message must be at least 2 characters')
     .max(1000, 'Message cannot exceed 1000 characters')
     .trim(),
   phone: phoneSchema
