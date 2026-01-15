@@ -34,12 +34,30 @@ const contactSchema = new mongoose.Schema({
   phone: {
     type: String,
     trim: true
-  }
+  },
+  replies: [{
+    message: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: [1000, 'Reply cannot exceed 1000 characters']
+    },
+    repliedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    repliedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });
 
 // Index for better query performance
 contactSchema.index({ status: 1, createdAt: -1 });
+contactSchema.index({ email: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Contact', contactSchema);
