@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const googleAuthController = require('../controllers/googleAuthController');
 const { protect } = require('../middleware/authMiddleware');
 const { validate } = require('../middleware/validateMiddleware');
 const {
@@ -13,6 +14,9 @@ const {
 } = require('../validators/authValidators');
 
 router.post('/register', validate(registerSchema), authController.register);
+
+// Google OAuth route
+router.post('/google', googleAuthController.googleAuth);
 router.post('/login', validate(loginSchema), authController.login);
 router.get('/me', protect, authController.getMe);
 
