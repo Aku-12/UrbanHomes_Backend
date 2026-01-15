@@ -130,6 +130,12 @@ const bookingSchema = new mongoose.Schema(
     discount: {
       type: Number,
       default: 0
+    },
+
+    // Track if booking has been reviewed
+    hasReview: {
+      type: Boolean,
+      default: false
     }
   },
   {
