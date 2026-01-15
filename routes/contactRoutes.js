@@ -10,11 +10,13 @@ const {
 
 // Public routes
 router.post('/', validate(contactSchema), contactController.submitContact);
+router.get('/by-email', contactController.getContactsByEmail);
 
 // Admin only routes
 router.get('/', protect, authorize('admin'), contactController.getContacts);
 router.get('/:id', protect, authorize('admin'), contactController.getContact);
 router.put('/:id/status', protect, authorize('admin'), validate(updateContactStatusSchema), contactController.updateContactStatus);
+router.post('/:id/reply', protect, authorize('admin'), contactController.replyToContact);
 router.delete('/:id', protect, authorize('admin'), contactController.deleteContact);
 
 module.exports = router;
