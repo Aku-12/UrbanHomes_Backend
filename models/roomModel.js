@@ -52,6 +52,7 @@ const roomSchema = new mongoose.Schema({
       type: String,
       trim: true
     },
+    // Legacy coordinates format (for backward compatibility)
     coordinates: {
       latitude: {
         type: Number
@@ -59,6 +60,25 @@ const roomSchema = new mongoose.Schema({
       longitude: {
         type: Number
       }
+    },
+    // GeoJSON format for geo-queries
+    geoLocation: {
+      type: {
+        type: String,
+        enum: ['Point']
+      },
+      coordinates: {
+        type: [Number] // [longitude, latitude]
+      }
+    },
+    // Place details from geocoder
+    placeName: {
+      type: String,
+      trim: true
+    },
+    formattedAddress: {
+      type: String,
+      trim: true
     }
   },
   amenities: {
@@ -126,6 +146,7 @@ const roomSchema = new mongoose.Schema({
 
 // Index for location-based queries
 roomSchema.index({ 'location.city': 1, 'location.area': 1 });
+roomSchema.index({ 'location.geoLocation': '2dsphere' }, { sparse: true }); // For geo-queries (nearby rooms)
 roomSchema.index({ price: 1 });
 roomSchema.index({ roomType: 1 });
 roomSchema.index({ status: 1 });
